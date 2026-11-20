@@ -232,16 +232,21 @@
         return;
       }
 
-      try {
-        // প্রথমে gemini-3.8-pro দিয়ে চেষ্টা করবে
-        let data = await callGemini("gemini-3.8-pro", cmd);
+      const models = [
+        "gemini-3.8-pro",
+        "gemini-3.8-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.0-flash-lite"
+      ];
 
-        // Pro মডেলে চাপ বা কোটা সমস্যা হলে সাথে সাথে gemini-3.8-flash দিয়ে চেষ্টা করবে
-        if (data.error) {
-          data = await callGemini("gemini-3.8-flash", cmd);
+      try {
+        let data = null;
+        for (const model of models) {
+          data = await callGemini(model, cmd);
+          if (!data.error) break;
         }
 
-        if (data.error) {
+        if (data && data.error) {
           document.getElementById("status").innerText = "ত্রুটি: " + data.error.message;
           return;
         }
